@@ -1,0 +1,12 @@
+services:
+  db:
+    image: postgres:18
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: UavRoutePlannerDb
+      POSTGRES_USER: user
+    volumes:
+      - ./db-data:/var/lib/postgresql
+    container_name: uav_route_planner_db
