@@ -7,3 +7,4 @@ node_modules/
 dist/
 .angular/
 appsettings.Development.json
+db-data/
