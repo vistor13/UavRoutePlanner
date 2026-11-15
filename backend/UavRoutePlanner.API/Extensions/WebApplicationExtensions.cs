@@ -14,6 +14,7 @@ public static class WebApplicationExtensions
         var services = builder.Services;
         var configuration = builder.Configuration;
 
+       
         services.ConfigureHttpJsonOptions(options =>
             options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
@@ -26,7 +27,8 @@ public static class WebApplicationExtensions
             options.AddPolicy(CorsPolicy, policy => policy
                 .WithOrigins("http://localhost:4200")
                 .AllowAnyMethod()
-                .AllowAnyHeader());
+                .AllowAnyHeader()
+                .WithExposedHeaders("Content-Disposition"));
         });
     }
 
