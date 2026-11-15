@@ -14,7 +14,6 @@ public static class WebApplicationExtensions
         var services = builder.Services;
         var configuration = builder.Configuration;
 
-       
         services.ConfigureHttpJsonOptions(options =>
             options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
@@ -22,6 +21,7 @@ public static class WebApplicationExtensions
         services.AddSwaggerGenServicePortfolio();
         services.AddBLLLayer(configuration);
         services.AddJwtAuthentication(configuration);
+        services.AddAuthRateLimiting();
         services.AddCors(options =>
         {
             options.AddPolicy(CorsPolicy, policy => policy
@@ -41,6 +41,7 @@ public static class WebApplicationExtensions
         }
 
         app.UseCors(CorsPolicy);
+        app.UseRateLimiter();
         app.UseAuthentication();
         app.UseAuthorization();
 

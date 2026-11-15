@@ -9,7 +9,9 @@ public static class AuthEndpoint
 {
     public static void MapAuthEndpoint(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("api/auth").WithTags("Auth");
+        var group = app.MapGroup("api/auth")
+            .WithTags("Auth")
+            .RequireRateLimiting(RateLimitingExtensions.AuthPolicy);
 
         group.MapPost("register", Register);
         group.MapPost("login", Login);

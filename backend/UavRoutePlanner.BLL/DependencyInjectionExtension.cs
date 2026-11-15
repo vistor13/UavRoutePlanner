@@ -24,9 +24,11 @@ public static class DependencyInjectionExtension
         services.AddSingleton<IWindTriangleCalculator, WindTriangleCalculator>();
         services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
         services.AddSingleton<IJwtService, JwtService>();
+        services.AddSingleton<ILoginAttemptTracker, LoginAttemptTracker>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IUavProfileService, UavProfileService>();
         services.AddScoped<IMissionService, MissionService>();
+
         services.AddInfrastructureLayer(
             configuration["Database:ConnectionString"]
             ?? throw new InvalidOperationException("Не задано Database:ConnectionString."));

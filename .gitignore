@@ -8,3 +8,4 @@ dist/
 .angular/
 appsettings.Development.json
 db-data/
+db-data/

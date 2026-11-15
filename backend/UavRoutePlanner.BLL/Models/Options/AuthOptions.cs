@@ -10,4 +10,8 @@ public class AuthOptions
     public string Issuer { get; set; } = string.Empty;
 
     public int ExpiresMinutes { get; set; } = 60 * 24;
+
+    public int MaxFailedAttempts { get; set; } = 5;
+
+    public int LockoutMinutes { get; set; } = 15;
 }

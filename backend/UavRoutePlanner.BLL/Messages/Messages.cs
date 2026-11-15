@@ -16,6 +16,12 @@ public static class Messages
         public const string PasswordTooShort =
             "The password must be at least 6 characters long.";
 
+        public const string TooManyLoginAttempts =
+            "Too many failed sign-in attempts. Try again in {0} minutes.";
+
+        public const string TooManyRequests =
+            "Too many requests. Try again in a minute.";
+
         public const string UavProfileNotFound =
             "UAV profile not found.";
 

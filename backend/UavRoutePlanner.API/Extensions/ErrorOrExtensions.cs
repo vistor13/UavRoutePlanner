@@ -1,4 +1,5 @@
 using ErrorOr;
+using UavRoutePlanner.BLL.Models.Auth;
 using UavRoutePlanner.BLL.Models.Dto.Route;
 
 namespace UavRoutePlanner.Api.Extensions;
@@ -29,6 +30,7 @@ public static class ErrorOrExtensions
             ErrorType.NotFound => StatusCodes.Status404NotFound,
             ErrorType.Conflict => StatusCodes.Status409Conflict,
             ErrorType.Failure => StatusCodes.Status502BadGateway,
+            _ when firstError.NumericType == AuthErrors.TooManyAttemptsType => StatusCodes.Status429TooManyRequests,
             _ => StatusCodes.Status500InternalServerError
         };
 
