@@ -63,5 +63,46 @@ public class UserService(
         return jwtService.GenerateToken(user);
     }
 
+    public async Task<ErrorOr<UserProfileDto>> GetProfile(long userId, CancellationToken ct = default)
+    {
+        var user = await userRepository.GetById(userId, ct);
+
+        return user is null
+            ? Error.NotFound("UserNotFound", Errors.UserNotFound)
+            : new UserProfileDto(user.UserName);
+    }
+
+    public async Task<ErrorOr<Updated>> ChangePassword(long userId, ChangePasswordDto dto, CancellationToken ct = default)
+    {
+        if (dto.NewPassword.Length < MinPasswordLength)
+            return Error.Validation("PasswordTooShort", Errors.PasswordTooShort);
+
+        var user = await userRepository.GetById(userId, ct);
+
+        if (user is null)
+            return Error.NotFound("UserNotFound", Errors.UserNotFound);
+
+        var key = Normalize(user.UserName);
+
+        if (attemptTracker.IsLocked(key))
+            return AuthErrors.TooManyAttempts(authOptions.Value.LockoutMinutes);
+
+        if (!passwordHasher.Verify(dto.CurrentPassword, user.HashedPassword))
+        {
+            attemptTracker.RegisterFailure(key);
+            return Error.Validation("CurrentPasswordIncorrect", Errors.CurrentPasswordIncorrect);
+        }
+
+        if (dto.NewPassword == dto.CurrentPassword)
+            return Error.Validation("NewPasswordSameAsCurrent", Errors.NewPasswordSameAsCurrent);
+
+        attemptTracker.Reset(key);
+
+        user.HashedPassword = passwordHasher.Hash(dto.NewPassword);
+        await userRepository.Update(user.Id, user, ct);
+
+        return Result.Updated;
+    }
+
     private static string Normalize(string userName) => userName.Trim().ToLowerInvariant();
 }

@@ -1,6 +1,7 @@
 using ErrorOr;
 using UavRoutePlanner.BLL.Models.Auth;
 using UavRoutePlanner.BLL.Models.Dto.Route;
+using UavRoutePlanner.BLL.Models.Dto.UavProfile;
 
 namespace UavRoutePlanner.Api.Extensions;
 
@@ -12,8 +13,14 @@ public static class ErrorOrExtensions
     public static IResult ToResult(this ErrorOr<Created> result) =>
         result.Match(_ => Results.StatusCode(StatusCodes.Status201Created), ToProblem);
 
+    public static IResult ToResult(this ErrorOr<Updated> result) =>
+        result.Match(_ => Results.NoContent(), ToProblem);
+
     public static IResult ToFileResult(this ErrorOr<ExportedFileDto> result) =>
         result.Match(file => Results.File(file.Content, file.ContentType, file.FileName), ToProblem);
+
+    public static IResult ToPhotoResult(this ErrorOr<UavProfilePhotoDto> result) =>
+        result.Match(photo => Results.File(photo.Data, photo.ContentType), ToProblem);
 
     public static IResult ToResult(this ErrorOr<Deleted> result) =>
         result.Match(_ => Results.NoContent(), ToProblem);

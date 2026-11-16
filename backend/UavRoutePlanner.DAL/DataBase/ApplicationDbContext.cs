@@ -9,6 +9,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     public DbSet<UavProfileEntity> UavProfiles { get; set; } = null!;
 
+    public DbSet<UavProfilePhotoEntity> UavProfilePhotos { get; set; } = null!;
+
     public DbSet<MissionEntity> Missions { get; set; } = null!;
 
     public DbSet<UavParametersEntity> UavParameters { get; set; } = null!;

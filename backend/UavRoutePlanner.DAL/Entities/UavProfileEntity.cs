@@ -19,6 +19,8 @@ public class UavProfileEntity : BaseEntity
 
     public double FlightAltitudeM { get; set; }
 
+    public DateTime? PhotoUpdatedAtUtc { get; set; }
+
     public long UserId { get; set; }
 
     public UserEntity User { get; set; } = null!;

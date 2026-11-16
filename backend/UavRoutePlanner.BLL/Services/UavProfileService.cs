@@ -11,8 +11,11 @@ public class UavProfileService(IUavProfileRepository profileRepository) : IUavPr
 {
     private const int MaxNameLength = 100;
 
-  
     private const double MaxAltitudeM = 180;
+
+    private const double MaxAirspeedMs = 100;
+
+    private const double MaxFlightTimeMin = 720;
 
     public async Task<List<UavProfileDto>> GetAll(long userId, CancellationToken ct = default)
     {
@@ -44,11 +47,13 @@ public class UavProfileService(IUavProfileRepository profileRepository) : IUavPr
         if (Validate(input) is { } error)
             return error;
 
-        if (await profileRepository.GetOwnedAsync(id, userId, ct) is null)
+        var existing = await profileRepository.GetOwnedAsync(id, userId, ct);
+        if (existing is null)
             return NotFound();
 
         var entity = input.ToEntity(userId);
         entity.Id = id;
+        entity.PhotoUpdatedAtUtc = existing.PhotoUpdatedAtUtc;
         await profileRepository.Update(id, entity, ct);
 
         return entity.ToDto();
@@ -64,7 +69,6 @@ public class UavProfileService(IUavProfileRepository profileRepository) : IUavPr
         return Result.Deleted;
     }
 
-    
     private static Error NotFound() =>
         Error.NotFound("UavProfileNotFound", Errors.UavProfileNotFound);
 
@@ -78,8 +82,14 @@ public class UavProfileService(IUavProfileRepository profileRepository) : IUavPr
         if (input.AirspeedMs <= 0)
             return Error.Validation("AirspeedNotPositive", Errors.AirspeedNotPositive);
 
+        if (input.AirspeedMs > MaxAirspeedMs)
+            return Error.Validation("AirspeedTooHigh", Errors.AirspeedTooHigh);
+
         if (input.MaxFlightTimeMin <= 0)
             return Error.Validation("MaxFlightTimeNotPositive", Errors.MaxFlightTimeNotPositive);
+
+        if (input.MaxFlightTimeMin > MaxFlightTimeMin)
+            return Error.Validation("MaxFlightTimeTooLong", Errors.MaxFlightTimeTooLong);
 
         if (input.ReservePercent is < 0 or >= 100)
             return Error.Validation("ReserveOutOfRange", Errors.ReserveOutOfRange);

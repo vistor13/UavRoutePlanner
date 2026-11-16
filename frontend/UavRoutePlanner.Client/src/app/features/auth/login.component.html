@@ -1,0 +1,180 @@
+<div class="auth-page">
+  <div class="auth-shell">
+    <aside class="hero" aria-hidden="false">
+      <picture class="hero-photo">
+        <source srcset="auth/auth-hero.webp" type="image/webp">
+        <img src="auth/auth-hero.jpg" alt="" width="1672" height="941">
+      </picture>
+      <div class="hero-shade"></div>
+
+      <svg class="hero-art" viewBox="0 0 600 170" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <ellipse cx="90" cy="161" rx="14" ry="4" fill="rgba(0,0,0,0.45)"/>
+        <ellipse cx="330" cy="119" rx="14" ry="4" fill="rgba(0,0,0,0.45)"/>
+        <path class="route" d="M90 160 C 140 166, 190 156, 225 142 C 258 128, 285 130, 330 118"
+              fill="none" stroke="#29b6f6" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="9 9"/>
+        <g transform="translate(330 118)">
+          <g class="pin pin-a">
+            <path d="M0 0 C-14 -20 -22 -30 -22 -42 A22 22 0 1 1 22 -42 C22 -30 14 -20 0 0 Z" fill="#29b6f6" stroke="#fff" stroke-width="2"/>
+            <circle cy="-42" r="8" fill="#fff"/>
+          </g>
+        </g>
+        <g transform="translate(90 160)">
+          <g class="pin pin-b">
+            <path d="M0 0 C-14 -20 -22 -30 -22 -42 A22 22 0 1 1 22 -42 C22 -30 14 -20 0 0 Z" fill="#29b6f6" stroke="#fff" stroke-width="2"/>
+            <circle cy="-42" r="8" fill="#fff"/>
+          </g>
+        </g>
+      </svg>
+
+      <div class="drone-wrap" aria-hidden="true">
+        <span class="drone-shadow"></span>
+        <img class="drone" src="auth/drone.webp" alt="" width="749" height="528">
+      </div>
+
+      <div class="hero-content">
+        <div class="logo">
+          <app-logo [size]="44" />
+          <span>UAV Route Planner</span>
+        </div>
+
+        <h2 class="tagline">Plan routes that respect <span>the weather.</span></h2>
+
+        <ul class="features">
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h16a3 3 0 1 1-3 3M3 16h7a2.5 2.5 0 1 1-2.5 2.5"/></svg>
+            Wind-aware routing
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20v-6M11 20V8M17 20v-9M3 20h18"/></svg>
+            Route comparison
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 20h14"/></svg>
+            Export to Mission Planner / KML / CSV
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <section class="panel">
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" id="tab-login" [attr.aria-selected]="!registering()" [class.active]="!registering()" (click)="setMode('login')">Sign in</button>
+        <button type="button" role="tab" id="tab-register" [attr.aria-selected]="registering()" [class.active]="registering()" (click)="setMode('register')">Create account</button>
+      </div>
+
+      <form class="form" [formGroup]="form" (ngSubmit)="submit()" novalidate [attr.aria-labelledby]="registering() ? 'tab-register' : 'tab-login'">
+        @if (error(); as message) {
+          <div class="banner" [class.banner-warn]="throttled()" [class.banner-error]="!throttled()" role="alert">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              @if (throttled()) {
+                <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+              } @else {
+                <path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v5M12 18h.01"/>
+              }
+            </svg>
+            <span>{{ message }}</span>
+          </div>
+        }
+        @if (notice(); as message) {
+          <div class="banner banner-ok" role="status">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>
+            <span>{{ message }}</span>
+          </div>
+        }
+
+        <div class="field">
+          <label for="userName">Username</label>
+          <input id="userName" formControlName="userName" type="text" autocomplete="username"
+                 placeholder="Enter your username" [class.invalid]="invalid('userName')"
+                 [attr.aria-invalid]="invalid('userName')" aria-describedby="userName-hint">
+          @if (invalid('userName')) {
+            <p class="hint hint-error" id="userName-hint">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+              Username is required
+            </p>
+          } @else {
+            <p class="hint" id="userName-hint">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+              Username is not case-sensitive
+            </p>
+          }
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <input id="password" formControlName="password" [type]="showPassword() ? 'text' : 'password'"
+                   [autocomplete]="registering() ? 'new-password' : 'current-password'"
+                   placeholder="Enter your password" [class.invalid]="invalid('password')"
+                   [attr.aria-invalid]="invalid('password')" aria-describedby="password-hint">
+            <button type="button" class="eye" (click)="togglePassword()" [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'" [attr.aria-pressed]="showPassword()">
+              @if (showPassword()) {
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+              } @else {
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 6.1A10 10 0 0 1 12 6c6.4 0 10 6 10 6a17 17 0 0 1-3.2 3.9M6.6 7.6C3.9 9.3 2 12 2 12s3.6 6 10 6a10 10 0 0 0 4-.8M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+              }
+            </button>
+          </div>
+          @if (invalid('password')) {
+            <p class="hint hint-error" id="password-hint">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+              Password is required
+            </p>
+          } @else {
+            <p id="password-hint" class="sr-only">Enter your password</p>
+          }
+
+          @if (registering() && strength().level > 0) {
+            <div class="strength" [attr.data-level]="strength().level">
+              <div class="bars"><span></span><span></span><span></span><span></span></div>
+              <small>{{ strength().label }}</small>
+            </div>
+          }
+        </div>
+
+        @if (registering()) {
+          <div class="field">
+            <label for="confirm">Confirm password</label>
+            <input id="confirm" formControlName="confirm" [type]="showPassword() ? 'text' : 'password'"
+                   autocomplete="new-password" placeholder="Repeat your password"
+                   [class.invalid]="invalid('confirm') || mismatch()" [attr.aria-invalid]="invalid('confirm') || mismatch()"
+                   aria-describedby="confirm-hint">
+            @if (invalid('confirm')) {
+              <p class="hint hint-error" id="confirm-hint">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+                Please repeat the password
+              </p>
+            } @else if (mismatch()) {
+              <p class="hint hint-error" id="confirm-hint">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+                Passwords do not match
+              </p>
+            }
+          </div>
+        }
+
+        <button class="submit" type="submit" [disabled]="busy()">
+          @if (busy()) {
+            <span class="spinner" aria-hidden="true"></span>
+            <span>{{ registering() ? 'Creating account' : 'Signing in' }}</span>
+          } @else {
+            <span>{{ registering() ? 'Create account' : 'Sign in' }}</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+          }
+        </button>
+
+        <div class="divider"><span>or</span></div>
+
+        <p class="switch">
+          @if (registering()) {
+            Already have an account?
+            <button type="button" class="text-link" (click)="setMode('login')">Sign in</button>
+          } @else {
+            Don't have an account?
+            <button type="button" class="text-link" (click)="setMode('register')">Create account</button>
+          }
+        </p>
+      </form>
+    </section>
+  </div>
+</div>

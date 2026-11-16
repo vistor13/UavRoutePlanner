@@ -27,6 +27,7 @@ public static class DependencyInjectionExtension
         services.AddSingleton<ILoginAttemptTracker, LoginAttemptTracker>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IUavProfileService, UavProfileService>();
+        services.AddScoped<IUavProfilePhotoService, UavProfilePhotoService>();
         services.AddScoped<IMissionService, MissionService>();
 
         services.AddInfrastructureLayer(

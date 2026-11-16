@@ -16,6 +16,15 @@ public static class Messages
         public const string PasswordTooShort =
             "The password must be at least 6 characters long.";
 
+        public const string UserNotFound =
+            "User not found.";
+
+        public const string CurrentPasswordIncorrect =
+            "The current password is incorrect.";
+
+        public const string NewPasswordSameAsCurrent =
+            "The new password must be different from the current one.";
+
         public const string TooManyLoginAttempts =
             "Too many failed sign-in attempts. Try again in {0} minutes.";
 
@@ -39,6 +48,21 @@ public static class Messages
 
         public const string AirspeedNotPositive =
             "The UAV airspeed must be greater than zero.";
+
+        public const string AirspeedTooHigh =
+            "The UAV airspeed cannot exceed 100 m/s.";
+
+        public const string MaxFlightTimeTooLong =
+            "The maximum flight time cannot exceed 720 minutes.";
+
+        public const string PhotoTooLarge =
+            "The photo is too large. The maximum size is 2 MB.";
+
+        public const string PhotoUnsupportedFormat =
+            "The photo must be a JPEG, PNG or WebP image.";
+
+        public const string PhotoNotFound =
+            "This UAV profile has no photo.";
 
         public const string WindSpeedNegative =
             "The wind speed cannot be negative.";

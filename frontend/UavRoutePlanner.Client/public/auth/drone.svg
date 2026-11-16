@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e8edf3"/>
+      <stop offset="1" stop-color="#9aa6b5"/>
+    </linearGradient>
+    <linearGradient id="arm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4a5565"/>
+      <stop offset="1" stop-color="#1f2733"/>
+    </linearGradient>
+    <radialGradient id="lens" cx="0.4" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#5ec8ff"/>
+      <stop offset="0.5" stop-color="#1b4f8a"/>
+      <stop offset="1" stop-color="#0a1528"/>
+    </radialGradient>
+    <radialGradient id="blur" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.05"/>
+      <stop offset="0.8" stop-color="#cfe6ff" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#cfe6ff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+    <g id="rotor">
+      <circle r="74" fill="url(#blur)"/>
+      <g>
+        <rect x="-70" y="-5" width="140" height="10" rx="5" fill="#0d141f" opacity="0.85"/>
+        <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="0.35s" repeatCount="indefinite"/>
+      </g>
+      <circle r="9" fill="#2b3544"/>
+      <circle r="4" fill="#7e8da3"/>
+    </g>
+  </defs>
+  <ellipse cx="200" cy="340" rx="120" ry="18" fill="#000" opacity="0.35" filter="url(#shadow)"/>
+  <g stroke-linecap="round">
+    <line x1="200" y1="200" x2="78" y2="78" stroke="url(#arm)" stroke-width="16"/>
+    <line x1="200" y1="200" x2="322" y2="78" stroke="url(#arm)" stroke-width="16"/>
+    <line x1="200" y1="200" x2="78" y2="322" stroke="url(#arm)" stroke-width="16"/>
+    <line x1="200" y1="200" x2="322" y2="322" stroke="url(#arm)" stroke-width="16"/>
+  </g>
+  <use href="#rotor" x="78" y="78"/>
+  <use href="#rotor" x="322" y="78"/>
+  <use href="#rotor" x="78" y="322"/>
+  <use href="#rotor" x="322" y="322"/>
+  <rect x="160" y="150" width="80" height="110" rx="26" fill="url(#body)" stroke="#6f7c8d" stroke-width="2"/>
+  <rect x="176" y="164" width="48" height="22" rx="8" fill="#1f2733" opacity="0.85"/>
+  <circle cx="188" cy="175" r="3" fill="#35e08a"/>
+  <circle cx="212" cy="175" r="3" fill="#ff5b5b"/>
+  <circle cx="200" cy="236" r="19" fill="#1a2230"/>
+  <circle cx="200" cy="236" r="14" fill="url(#lens)"/>
+  <circle cx="194" cy="230" r="4" fill="#ffffff" opacity="0.6"/>
+</svg>

@@ -12,6 +12,7 @@ export class AuthService {
   private readonly storage = inject(TokenStorage);
 
   readonly isLoggedIn = signal(this.storage.get() !== null);
+  readonly userName = signal<string | null>(null);
 
   get token(): string | null {
     return this.storage.get();
@@ -32,8 +33,19 @@ export class AuthService {
       );
   }
 
+  loadProfile() {
+    return this.http
+      .get<{ userName: string }>(`${API_URL}/account/me`)
+      .pipe(tap(profile => this.userName.set(profile.userName)));
+  }
+
+  changePassword(currentPassword: string, newPassword: string) {
+    return this.http.put<void>(`${API_URL}/account/password`, { currentPassword, newPassword });
+  }
+
   logout(): void {
     this.storage.clear();
+    this.userName.set(null);
     this.isLoggedIn.set(false);
     void this.router.navigate(['/login']);
   }

@@ -46,6 +46,7 @@ public static class WebApplicationExtensions
         app.UseAuthorization();
 
         app.MapAuthEndpoint();
+        app.MapAccountEndpoint();
         app.MapUavProfileEndpoint();
         app.MapMissionEndpoint();
         app.MapWeatherEndpoint();

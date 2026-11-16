@@ -8,7 +8,7 @@ namespace UavRoutePlanner.DAL;
 
 public static class DependencyInjectionExtension
 {
- 
+
     public static IServiceCollection AddInfrastructureLayer(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<ApplicationDbContext>(options =>
@@ -16,6 +16,7 @@ public static class DependencyInjectionExtension
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUavProfileRepository, UavProfileRepository>();
+        services.AddScoped<IUavProfilePhotoRepository, UavProfilePhotoRepository>();
         services.AddScoped<IMissionRepository, MissionRepository>();
         services.AddScoped<IRouteResultRepository, RouteResultRepository>();
         services.AddScoped<IWeatherForecastRepository, WeatherForecastRepository>();

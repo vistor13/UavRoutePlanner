@@ -261,6 +261,9 @@ namespace UavRoutePlanner.DAL.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<DateTime?>("PhotoUpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<double>("ReservePercent")
                         .HasColumnType("double precision");
 
@@ -272,6 +275,34 @@ namespace UavRoutePlanner.DAL.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UavProfiles");
+                });
+
+            modelBuilder.Entity("UavRoutePlanner.DAL.Entities.UavProfilePhotoEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<byte[]>("Data")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<long>("UavProfileId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UavProfileId")
+                        .IsUnique();
+
+                    b.ToTable("UavProfilePhotos");
                 });
 
             modelBuilder.Entity("UavRoutePlanner.DAL.Entities.UserEntity", b =>
@@ -462,6 +493,15 @@ namespace UavRoutePlanner.DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("UavRoutePlanner.DAL.Entities.UavProfilePhotoEntity", b =>
+                {
+                    b.HasOne("UavRoutePlanner.DAL.Entities.UavProfileEntity", null)
+                        .WithOne()
+                        .HasForeignKey("UavRoutePlanner.DAL.Entities.UavProfilePhotoEntity", "UavProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("UavRoutePlanner.DAL.Entities.MissionEntity", b =>

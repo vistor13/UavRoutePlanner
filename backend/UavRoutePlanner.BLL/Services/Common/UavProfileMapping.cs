@@ -11,7 +11,10 @@ public static class UavProfileMapping
         entity.AirspeedMs,
         entity.MaxFlightTimeMin,
         entity.ReservePercent,
-        entity.FlightAltitudeM);
+        entity.FlightAltitudeM,
+        entity.PhotoUpdatedAtUtc is { } updatedAt
+            ? new DateTimeOffset(DateTime.SpecifyKind(updatedAt, DateTimeKind.Utc)).ToUnixTimeMilliseconds()
+            : null);
 
     public static UavProfileEntity ToEntity(this UavProfileInputDto input, long userId) => new()
     {

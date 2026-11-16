@@ -6,4 +6,5 @@ public record UavProfileDto(
     double AirspeedMs,
     double MaxFlightTimeMin,
     double ReservePercent,
-    double FlightAltitudeM);
+    double FlightAltitudeM,
+    long? PhotoVersion);
