@@ -15,7 +15,9 @@ public record MissionSummaryDto(
     long? UavProfileId,
     int ObjectsCount,
     int RoutesCount,
-    int? BestVisitedObjectsCount);
+    int? BestVisitedObjectsCount,
+    DateTime? PlannedDepartureUtc);
+
 public record MissionDto(
     long Id,
     string Name,
@@ -25,4 +27,5 @@ public record MissionDto(
     long? UavProfileId,
     UavParametersDto Uav,
     AlgorithmSettingsDto Algorithm,
-    List<SurveyObjectDto> Objects);
+    List<SurveyObjectDto> Objects,
+    DateTime? PlannedDepartureUtc);

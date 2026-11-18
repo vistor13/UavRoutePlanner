@@ -13,7 +13,8 @@ public static class MissionMapping
         entity.UavProfileId,
         entity.Objects.Count,
         entity.Results.Count,
-        entity.Results.Count == 0 ? null : entity.Results.Max(r => r.VisitedObjectsCount));
+        entity.Results.Count == 0 ? null : entity.Results.Max(r => r.VisitedObjectsCount),
+        entity.PlannedDepartureUtc);
 
     public static MissionDto ToDto(this MissionEntity entity) => new(
         entity.Id,
@@ -37,9 +38,9 @@ public static class MissionMapping
         entity.Objects
             .OrderBy(o => o.Number)
             .Select(o => new SurveyObjectDto(o.Id, o.Number, o.Name, o.Latitude, o.Longitude))
-            .ToList());
+            .ToList(),
+        entity.PlannedDepartureUtc);
 
-    
     public static MissionEntity ToEntity(
         this MissionInputDto input, long userId, UavProfileEntity profile, GeoPointDto start, GeoPointDto finish)
     {

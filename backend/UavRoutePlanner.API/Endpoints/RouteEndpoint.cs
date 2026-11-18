@@ -21,17 +21,22 @@ public static class RouteEndpoint
         group.MapPost("compare", Compare);
         group.MapGet("{resultId:long}", GetById);
 
-      
         group.MapGet("{resultId:long}/export", Export);
 
         group.MapPost("best-departure", FindBestDeparture);
+        group.MapPost("best-departure/save", SaveDeparturePlan);
     }
 
     private static async Task<IResult> FindBestDeparture(
         long missionId, DepartureSearchRequest? request, ClaimsPrincipal user,
         IDepartureTimeService service, CancellationToken ct) =>
-        (await service.FindBest(user.GetUserId(), missionId, (request ?? new DepartureSearchRequest(null, null)).ToDto(), ct))
+        (await service.FindBest(user.GetUserId(), missionId, (request ?? new DepartureSearchRequest(null, null, null)).ToDto(), ct))
         .ToResult();
+
+    private static async Task<IResult> SaveDeparturePlan(
+        long missionId, SaveDeparturePlanRequest request, ClaimsPrincipal user,
+        IDepartureTimeService service, CancellationToken ct) =>
+        (await service.SavePlan(user.GetUserId(), missionId, request.ToDto(), ct)).ToResult();
 
     private static async Task<IResult> Build(
         long missionId, RouteRequest? request, ClaimsPrincipal user, IRouteBuildingService service, CancellationToken ct) =>

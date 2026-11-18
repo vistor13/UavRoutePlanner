@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace UavRoutePlanner.DAL.Entities;
 
-
 [EntityTypeConfiguration(typeof(MissionEntityTypeConfiguration))]
 public class MissionEntity : BaseEntity
 {
@@ -13,6 +12,8 @@ public class MissionEntity : BaseEntity
     public string Name { get; set; } = string.Empty;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public DateTime? PlannedDepartureUtc { get; set; }
 
     public GeoPointEntity Start { get; set; } = new();
 

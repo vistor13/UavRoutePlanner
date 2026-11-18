@@ -12,7 +12,7 @@ using UavRoutePlanner.DAL.DataBase;
 namespace UavRoutePlanner.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261116224656_AddUavProfilePhoto")]
+    [Migration("20261116230044_AddUavProfilePhoto")]
     partial class AddUavProfilePhoto
     {
         /// <inheritdoc />

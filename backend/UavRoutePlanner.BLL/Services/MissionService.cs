@@ -41,6 +41,26 @@ public class MissionService(
         return created.ToDto();
     }
 
+    public async Task<ErrorOr<MissionDto>> Update(
+        long userId, long id, MissionInputDto input, CancellationToken ct = default)
+    {
+        if (validator.Validate(input) is { } error)
+            return error;
+
+        var profile = await profileRepository.GetOwnedAsync(input.UavProfileId, userId, ct);
+        if (profile is null)
+            return Error.NotFound("UavProfileNotFound", Errors.UavProfileNotFound);
+
+        var source = input.ToEntity(userId, profile, input.Start!, input.Finish!);
+
+        if (!await missionRepository.UpdateOwnedAsync(id, userId, source, ct))
+            return NotFound();
+
+        var updated = await missionRepository.GetOwnedFullAsync(id, userId, ct);
+
+        return updated is null ? NotFound() : updated.ToDto();
+    }
+
     public async Task<ErrorOr<Deleted>> Delete(long userId, long id, CancellationToken ct = default)
     {
         var mission = await missionRepository.GetOwnedFullAsync(id, userId, ct);
@@ -52,7 +72,6 @@ public class MissionService(
         return Result.Deleted;
     }
 
-    
     private static Error NotFound() =>
         Error.NotFound("MissionNotFound", Errors.MissionNotFound);
 }

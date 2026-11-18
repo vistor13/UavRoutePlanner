@@ -75,6 +75,9 @@ namespace UavRoutePlanner.DAL.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<DateTime?>("PlannedDepartureUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<long?>("UavProfileId")
                         .HasColumnType("bigint");
 

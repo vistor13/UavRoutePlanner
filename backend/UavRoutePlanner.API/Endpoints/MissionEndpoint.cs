@@ -16,6 +16,7 @@ public static class MissionEndpoint
         group.MapGet("", GetAll);
         group.MapGet("{id:long}", GetById);
         group.MapPost("", Create);
+        group.MapPut("{id:long}", Update);
         group.MapDelete("{id:long}", Delete);
     }
 
@@ -30,6 +31,10 @@ public static class MissionEndpoint
     private static async Task<IResult> Create(
         MissionRequest request, ClaimsPrincipal user, IMissionService service, CancellationToken ct) =>
         (await service.Create(user.GetUserId(), request.ToDto(), ct)).ToResult();
+
+    private static async Task<IResult> Update(
+        long id, MissionRequest request, ClaimsPrincipal user, IMissionService service, CancellationToken ct) =>
+        (await service.Update(user.GetUserId(), id, request.ToDto(), ct)).ToResult();
 
     private static async Task<IResult> Delete(
         long id, ClaimsPrincipal user, IMissionService service, CancellationToken ct) =>

@@ -73,6 +73,9 @@ public static class Messages
         public const string PointsCoincide =
             "The start and end points of the leg coincide.";
 
+        public const string DepartureHourNotInForecast =
+            "The selected departure hour is not in the forecast. Search again.";
+
         public const string MissionNotFound =
             "Mission not found.";
 
@@ -110,7 +113,10 @@ public static class Messages
             "The wind is set incorrectly: the speed must not be negative, the direction must be from 0° to 360°.";
 
         public const string DepartureHoursOutOfRange =
-            "The number of hours to review must be from 1 to 72.";
+            "The reviewed time range must cover from 1 to 72 hours.";
+
+        public const string DepartureRangeInvalid =
+            "The end of the time range must not be earlier than its start.";
 
         public const string NoFeasibleDeparture =
             "The flight is impossible in any of the reviewed hours: the wind is too strong or the time budget is insufficient.";

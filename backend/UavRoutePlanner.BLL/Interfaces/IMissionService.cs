@@ -11,5 +11,7 @@ public interface IMissionService
 
     Task<ErrorOr<MissionDto>> Create(long userId, MissionInputDto input, CancellationToken ct = default);
 
+    Task<ErrorOr<MissionDto>> Update(long userId, long id, MissionInputDto input, CancellationToken ct = default);
+
     Task<ErrorOr<Deleted>> Delete(long userId, long id, CancellationToken ct = default);
 }
