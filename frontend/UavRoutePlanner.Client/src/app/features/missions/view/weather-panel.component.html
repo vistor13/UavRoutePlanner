@@ -1,0 +1,27 @@
+<app-alert [message]="error()" />
+
+@if (forecast(); as f) {
+  <div class="source">
+    <span>Open-Meteo, at {{ f.altitudeM }} m, near {{ f.latitude }}, {{ f.longitude }}</span>
+    @if (canExpand()) {
+      <button type="button" class="more" (click)="toggle()">{{ expanded() ? 'Show less' : 'Show all' }}</button>
+    }
+  </div>
+
+  <div class="list" [class.scroll]="expanded()">
+    <table>
+      <caption class="sr">Hourly wind forecast, local time ({{ zone }})</caption>
+      <tbody>
+        @for (hour of hours(); track hour.timeUtc) {
+          <tr>
+            <td class="time">{{ format(hour.timeUtc) }}</td>
+            <td><app-wind-arrow [speedMs]="hour.speedMs" [directionFromDeg]="hour.directionFromDeg" /></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <p class="zone">Times are shown in your local time ({{ zone }}).</p>
+} @else if (!error()) {
+  <p class="zone">Loading forecast...</p>
+}

@@ -1,18 +1,30 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { MissionApi } from '../../../core/api/mission.api';
+import { RouteApi } from '../../../core/api/route.api';
 import { UavProfileApi } from '../../../core/api/uav-profile.api';
 import { errorMessage } from '../../../core/http/error-message';
 import {
-  AlgorithmSettings, DEFAULT_ALGORITHM, GeoPoint, ImportedObject, SurveyObjectInput, UavProfile
+  AlgorithmSettings, DEFAULT_ALGORITHM, GeoPoint, ImportedObject, Mission, MissionInput, SurveyObjectInput, UavProfile
 } from '../../../core/models';
 import { MapClick, MapComponent, MapMarker } from '../../../shared/map/map.component';
 import { AlertComponent } from '../../../shared/ui/alert.component';
-import { AlgorithmSettingsComponent } from './algorithm-settings.component';
-import { ImportObjectsComponent } from './import-objects.component';
+import { StepsComponent } from '../../../shared/ui/steps/steps.component';
+import { AlgorithmSettingsComponent, isAlgorithmValid } from './algorithm-settings.component';
+import { ImportObjectsComponent, ImportedFile, ImportResult } from './import-objects.component';
 
 type PlacingMode = 'start' | 'finish' | 'object';
+
+interface EditorObject extends SurveyObjectInput {
+  source?: number;
+}
+
+interface ImportSource {
+  id: number;
+  name: string;
+}
 
 const MAX_OBJECTS = 100;
 
@@ -20,73 +32,24 @@ const MAX_OBJECTS = 100;
   selector: 'app-mission-editor',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    FormsModule, RouterLink, MapComponent, AlertComponent, AlgorithmSettingsComponent, ImportObjectsComponent
+    FormsModule, RouterLink, MapComponent, AlertComponent, AlgorithmSettingsComponent, ImportObjectsComponent, StepsComponent
   ],
-  template: `
-    <h1>New mission</h1>
-    <app-alert [message]="error()" />
-
-    <div class="editor">
-      <section class="card side">
-        <label>Mission name <input name="name" [ngModel]="name()" (ngModelChange)="name.set($event)"></label>
-
-        <label>UAV profile
-          <select [ngModel]="profileId()" (ngModelChange)="profileId.set($event)">
-            <option [ngValue]="null" disabled>Select a profile</option>
-            @for (profile of profiles(); track profile.id) {
-              <option [ngValue]="profile.id">{{ profile.name }}</option>
-            }
-          </select>
-        </label>
-        @if (profiles().length === 0) {
-          <p class="muted">No profiles yet. <a routerLink="/profiles">Create one</a> first.</p>
-        }
-
-        <fieldset>
-          <legend>Click on the map to place</legend>
-          <label class="inline"><input type="radio" name="mode" value="start" [ngModel]="mode()" (ngModelChange)="mode.set($event)"> Start</label>
-          <label class="inline"><input type="radio" name="mode" value="finish" [ngModel]="mode()" (ngModelChange)="mode.set($event)"> Finish</label>
-          <label class="inline"><input type="radio" name="mode" value="object" [ngModel]="mode()" (ngModelChange)="mode.set($event)"> Objects</label>
-          <label class="inline">
-            <input type="checkbox" [ngModel]="finishSameAsStart()" (ngModelChange)="setSameFinish($event)">
-            Finish is the same as start
-          </label>
-        </fieldset>
-
-        <app-import-objects (imported)="addImported($event)" />
-
-        <h2>Objects ({{ objects().length }})</h2>
-        <ul class="list compact">
-          @for (object of objects(); track $index) {
-            <li>
-              <span class="num">{{ $index + 1 }}</span>
-              <input [ngModel]="object.name" (ngModelChange)="rename($index, $event)">
-              <button type="button" class="danger" (click)="removeObject($index)">&times;</button>
-            </li>
-          }
-        </ul>
-
-        <details>
-          <summary>Algorithm settings</summary>
-          <app-algorithm-settings [(settings)]="algorithm" />
-        </details>
-
-        <div class="row">
-          <button class="primary" type="button" [disabled]="!canSave() || busy()" (click)="save()">Create mission</button>
-          <a class="button" routerLink="/missions">Cancel</a>
-        </div>
-      </section>
-
-      <section class="mapbox">
-        <app-map [markers]="markers()" (mapClicked)="onMapClick($event)" />
-      </section>
-    </div>
-  `
+  templateUrl: './mission-editor.component.html',
+  styleUrl: './mission-editor.component.css'
 })
 export class MissionEditorComponent implements OnInit {
   private readonly missionApi = inject(MissionApi);
   private readonly profileApi = inject(UavProfileApi);
+  private readonly routeApi = inject(RouteApi);
   private readonly router = inject(Router);
+
+  readonly id = input<string>();
+
+  protected readonly editing = computed(() => this.id() !== undefined);
+  protected readonly loading = signal(false);
+  protected readonly routesCount = signal(0);
+  protected readonly fitMap = signal(false);
+  protected readonly cancelLink = computed(() => (this.editing() ? ['/missions', this.id()] : ['/missions']));
 
   protected readonly name = signal('');
   protected readonly profiles = signal<UavProfile[]>([]);
@@ -95,7 +58,8 @@ export class MissionEditorComponent implements OnInit {
   protected readonly start = signal<GeoPoint | null>(null);
   protected readonly finish = signal<GeoPoint | null>(null);
   protected readonly finishSameAsStart = signal(true);
-  protected readonly objects = signal<SurveyObjectInput[]>([]);
+  protected readonly objects = signal<EditorObject[]>([]);
+  protected readonly sources = signal<ImportSource[]>([]);
   protected readonly algorithm = signal<AlgorithmSettings>({ ...DEFAULT_ALGORITHM });
   protected readonly error = signal<string | null>(null);
   protected readonly busy = signal(false);
@@ -116,20 +80,63 @@ export class MissionEditorComponent implements OnInit {
     return result;
   });
 
-  protected readonly canSave = computed(() =>
-    this.name().trim().length > 0
-    && this.profileId() !== null
-    && this.start() !== null
-    && (this.finishSameAsStart() || this.finish() !== null)
-    && this.objects().length > 0);
+  protected readonly importedFiles = computed<ImportedFile[]>(() =>
+    this.sources()
+      .map(source => ({ ...source, count: this.objects().filter(object => object.source === source.id).length }))
+      .filter(file => file.count > 0));
+
+  protected readonly missing = computed(() => {
+    const result: string[] = [];
+    if (this.name().trim().length === 0) result.push('a mission name');
+    if (this.profileId() === null) result.push('a UAV profile');
+    if (this.start() === null) result.push('a start point');
+    if (!this.finishSameAsStart() && this.finish() === null) result.push('a finish point');
+    if (this.objects().length === 0) result.push('at least one object');
+    if (!isAlgorithmValid(this.algorithm())) result.push('valid algorithm settings');
+    return result;
+  });
+
+  protected readonly hint = computed(() => {
+    const missing = this.missing();
+    return this.loading() || missing.length === 0 ? null : `Add ${missing.join(', ')}.`;
+  });
+
+  protected readonly canSave = computed(() => this.missing().length === 0);
+
+  private nextSourceId = 1;
 
   ngOnInit(): void {
-    this.profileApi.getAll().subscribe({
-      next: profiles => {
+    const id = this.id();
+
+    if (id === undefined) {
+      this.profileApi.getAll().subscribe({
+        next: profiles => {
+          this.profiles.set(profiles);
+          if (profiles.length > 0) this.profileId.set(profiles[0].id);
+        },
+        error: (e: unknown) => this.error.set(errorMessage(e))
+      });
+      return;
+    }
+
+    const missionId = Number(id);
+    this.loading.set(true);
+
+    forkJoin({
+      profiles: this.profileApi.getAll(),
+      mission: this.missionApi.getById(missionId),
+      routes: this.routeApi.getAll(missionId)
+    }).subscribe({
+      next: ({ profiles, mission, routes }) => {
         this.profiles.set(profiles);
-        if (profiles.length > 0) this.profileId.set(profiles[0].id);
+        this.routesCount.set(routes.length);
+        this.load(mission, profiles);
+        this.loading.set(false);
       },
-      error: (e: unknown) => this.error.set(errorMessage(e))
+      error: (e: unknown) => {
+        this.loading.set(false);
+        this.error.set(errorMessage(e));
+      }
     });
   }
 
@@ -156,8 +163,15 @@ export class MissionEditorComponent implements OnInit {
     }
   }
 
-  protected addImported(imported: ImportedObject[]): void {
-    this.addObjects(imported);
+  protected addImported(result: ImportResult): void {
+    const id = this.nextSourceId++;
+    this.sources.update(list => [...list, { id, name: result.name }]);
+    this.addObjects(result.objects.map((object: ImportedObject) => ({ ...object, source: id })));
+  }
+
+  protected removeImport(id: number): void {
+    this.objects.update(list => list.filter(object => object.source !== id));
+    this.sources.update(list => list.filter(source => source.id !== id));
   }
 
   protected rename(index: number, name: string): void {
@@ -173,28 +187,48 @@ export class MissionEditorComponent implements OnInit {
     const profileId = this.profileId();
     if (!start || profileId === null) return;
 
+    const input: MissionInput = {
+      name: this.name().trim(),
+      start,
+      finish: this.finishSameAsStart() ? start : this.finish()!,
+      uavProfileId: profileId,
+      objects: this.objects().map(({ name, latitude, longitude }) => ({ name, latitude, longitude })),
+      algorithm: this.algorithm()
+    };
+
     this.busy.set(true);
     this.error.set(null);
 
-    this.missionApi
-      .create({
-        name: this.name().trim(),
-        start,
-        finish: this.finishSameAsStart() ? start : this.finish()!,
-        uavProfileId: profileId,
-        objects: this.objects(),
-        algorithm: this.algorithm()
-      })
-      .subscribe({
-        next: mission => void this.router.navigate(['/missions', mission.id]),
-        error: (e: unknown) => {
-          this.busy.set(false);
-          this.error.set(errorMessage(e));
-        }
-      });
+    const id = this.id();
+    const request = id === undefined ? this.missionApi.create(input) : this.missionApi.update(Number(id), input);
+
+    request.subscribe({
+      next: mission => void this.router.navigate(['/missions', mission.id]),
+      error: (e: unknown) => {
+        this.busy.set(false);
+        this.error.set(errorMessage(e));
+      }
+    });
   }
 
-  private addObjects(items: SurveyObjectInput[]): void {
+  private load(mission: Mission, profiles: UavProfile[]): void {
+    const sameEnds = mission.start.latitude === mission.finish.latitude
+      && mission.start.longitude === mission.finish.longitude;
+
+    this.name.set(mission.name);
+    this.profileId.set(profiles.some(p => p.id === mission.uavProfileId) ? mission.uavProfileId : null);
+    this.start.set({ latitude: mission.start.latitude, longitude: mission.start.longitude });
+    this.finish.set(sameEnds ? null : { latitude: mission.finish.latitude, longitude: mission.finish.longitude });
+    this.finishSameAsStart.set(sameEnds);
+    this.objects.set(mission.objects.map(o => ({ name: o.name, latitude: o.latitude, longitude: o.longitude })));
+    this.algorithm.set({ ...mission.algorithm });
+    this.mode.set('object');
+
+    this.fitMap.set(true);
+    setTimeout(() => this.fitMap.set(false));
+  }
+
+  private addObjects(items: EditorObject[]): void {
     this.objects.update(list => [...list, ...items].slice(0, MAX_OBJECTS));
   }
 }

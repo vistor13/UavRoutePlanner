@@ -93,7 +93,15 @@
                   <circle [attr.cx]="point.x" [attr.cy]="point.y" r="3.2" fill="#07142b" stroke="#fff" stroke-width="1.4"/>
                 }
               </svg>
-              <a class="mission-link" [routerLink]="['/missions', mission.id]">{{ mission.name }}</a>
+              <div class="name-text">
+                <a class="mission-link" [routerLink]="['/missions', mission.id]">{{ mission.name }}</a>
+                @if (mission.plannedDepartureUtc; as planned) {
+                  <span class="planned" title="Saved for a specific departure time">
+                    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v4l2.6 1.6"/></svg>
+                    Departure {{ planned | date: 'dd.MM.yyyy HH:mm' }}
+                  </span>
+                }
+              </div>
               </div>
             </td>
             <td>{{ mission.createdAt | date: 'dd.MM.yyyy HH:mm' }}</td>

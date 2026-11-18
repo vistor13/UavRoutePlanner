@@ -1,0 +1,170 @@
+<header class="head">
+  <h1>Best departure time</h1>
+  <p class="subtitle">Choose the hour with the most suitable wind for a mission you already have</p>
+</header>
+
+<section class="intro" aria-label="About this tool">
+  <span class="intro-icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.2 2"/></svg>
+  </span>
+  <div class="intro-text">
+    <h2>What does this do?</h2>
+    <p>
+      Wind changes hour by hour, and it decides how far the UAV can fly. Pick one of your missions and a time range,
+      and a route is calculated for every hour of that range using the Open-Meteo wind forecast.
+      Compare the hours, open any of them to see the route, then save the one you like as a new mission.
+      The new mission keeps its departure time as a mark, and your original mission stays unchanged.
+    </p>
+    <ol class="how">
+      <li><span>1</span>Choose a mission and a time range</li>
+      <li><span>2</span>Compare the hours and open the routes</li>
+      <li><span>3</span>Save the best hour as a new mission</li>
+    </ol>
+  </div>
+</section>
+
+<app-alert [message]="error()" />
+
+@if (!loaded()) {
+  <p class="muted state">Loading missions...</p>
+} @else if (missions().length === 0) {
+  <section class="card empty">
+    <h2>No missions yet</h2>
+    <p class="muted">Create a mission first, then come back to find its best departure time.</p>
+    <a class="button primary" routerLink="/missions/new">New mission</a>
+  </section>
+} @else {
+  <section class="card setup">
+    <div class="field wide">
+      <label for="bt-mission">Mission</label>
+      <select id="bt-mission" [ngModel]="missionId() === null ? '' : '' + missionId()" (ngModelChange)="onMissionChange($event)">
+        <option value="">Select a mission...</option>
+        @for (item of missions(); track item.id) {
+          <option [value]="item.id">{{ item.name }} ({{ item.objectsCount }} {{ item.objectsCount === 1 ? 'object' : 'objects' }})</option>
+        }
+      </select>
+      <a class="create-link" routerLink="/missions/new">
+        <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="M10 4v12M4 10h12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Mission not in the list? Create a new one
+      </a>
+    </div>
+
+    <div class="field">
+      <label for="bt-from">From</label>
+      <input id="bt-from" type="datetime-local" [min]="minLocal" [max]="maxLocal" [ngModel]="from()" (ngModelChange)="changeRange('from', $event)">
+    </div>
+    <div class="field">
+      <label for="bt-to">To</label>
+      <input id="bt-to" type="datetime-local" [min]="minLocal" [max]="maxLocal" [ngModel]="to()" (ngModelChange)="changeRange('to', $event)">
+    </div>
+
+    <div class="presets">
+      @for (preset of presets; track preset.label) {
+        <button type="button" class="chip" (click)="applyPreset(preset)">{{ preset.label }}</button>
+      }
+    </div>
+
+    <div class="run">
+      @if (rangeError(); as message) {
+        <p class="invalid" role="alert">{{ message }}</p>
+      } @else {
+        <p class="note">{{ hoursCount() }} {{ hoursCount() === 1 ? 'hour' : 'hours' }} selected. Up to 72 hours. Times are in your local time ({{ zone }}).</p>
+      }
+      <button type="button" class="primary" [disabled]="busy() || !!rangeError() || missionId() === null" (click)="run()">Find best time</button>
+    </div>
+
+    @if (busy()) {
+      <div class="progress" role="progressbar" aria-label="Calculating"><span></span></div>
+      <p class="note">Calculating routes for {{ hoursCount() }} {{ hoursCount() === 1 ? 'hour' : 'hours' }}...</p>
+    }
+  </section>
+
+  @if (result(); as r) {
+    @if (bestRow(); as best) {
+      <p class="best-line">
+        <strong>Best: {{ stamp(best.timeUtc) }}</strong>
+        &middot; {{ best.visitedObjectsCount }}/{{ totalObjects() }} objects
+        &middot; {{ duration(best.totalTimeS ?? 0) }}
+        @if (r.noWindBaseline; as base) {
+          <span class="muted">No-wind baseline: {{ base.visitedObjectsCount }}/{{ totalObjects() }} objects, {{ duration(base.totalTimeS) }}.</span>
+        }
+      </p>
+    }
+
+    <section class="hours" aria-label="Departure hours">
+      <div class="cols" aria-hidden="true">
+        <span></span><span>Hour ({{ zone }})</span><span>Wind</span><span>Objects</span><span>Flight time</span><span></span>
+      </div>
+
+      @for (item of r.hours; track item.timeUtc) {
+        <article class="hour" [class.best]="item.isBest" [class.picked]="item.timeUtc === picked()" [class.off]="!feasible(item)" [class.open]="item.timeUtc === expanded()">
+          <div class="line" [attr.role]="feasible(item) ? 'button' : null" [attr.tabindex]="feasible(item) ? 0 : null"
+               [attr.aria-expanded]="feasible(item) ? item.timeUtc === expanded() : null"
+               (click)="toggle(item)" (keydown.enter)="toggle(item)">
+            <svg class="chev" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M7 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="time">{{ hour(item.timeUtc) }}</span>
+            <span><app-wind-arrow [speedMs]="item.windSpeedMs" [directionFromDeg]="item.windDirectionFromDeg" /></span>
+            <span>{{ item.visitedObjectsCount === null ? '—' : item.visitedObjectsCount + '/' + totalObjects() }}</span>
+            <span>{{ item.totalTimeS === null ? '—' : duration(item.totalTimeS) }}</span>
+            <span class="end">
+              @if (feasible(item)) {
+                @if (item.isBest) { <span class="badge best">Best</span> }
+                <button type="button" class="choose" [class.on]="item.timeUtc === picked()" (click)="pick(item, $event)" (keydown.enter)="$event.stopPropagation()">
+                  {{ item.timeUtc === picked() ? 'Selected' : 'Select' }}
+                </button>
+              } @else {
+                <span class="reason">{{ reason(item) }}</span>
+              }
+            </span>
+          </div>
+
+          @if (item.timeUtc === expanded() && item.route; as route) {
+            <div class="detail">
+              <section class="mapbox">
+                <app-map [markers]="markers()" [path]="path()" [autoFit]="true" />
+              </section>
+              <app-route-summary [route]="route" />
+              <app-route-details [route]="route" [exportable]="false" />
+            </div>
+          }
+        </article>
+      }
+    </section>
+
+    <p class="note below">Click an hour to see its route. Select the hour you want and save it as a mission.</p>
+  }
+}
+
+@if (pickedRow(); as row) {
+  <div class="actionbar" role="region" aria-label="Selected hour">
+    <div class="picked-text">
+      <strong>{{ stamp(row.timeUtc) }}</strong>
+      <span class="muted">({{ zone }}) &middot; {{ row.visitedObjectsCount }}/{{ totalObjects() }} objects &middot; {{ duration(row.totalTimeS ?? 0) }}</span>
+    </div>
+    <button type="button" class="primary" (click)="openSave()">Save as mission</button>
+  </div>
+}
+
+@if (saveOpen()) {
+  <div class="backdrop" (click)="closeSave()">
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="save-title" (click)="$event.stopPropagation()">
+      <h2 id="save-title">Save as mission</h2>
+      <p class="muted">A new mission is created from the selected mission with the route for this hour. The departure time is shown as a mark. The original mission stays unchanged.</p>
+
+      <div class="field">
+        <label for="save-name">Mission name</label>
+        <input id="save-name" type="text" maxlength="200" [ngModel]="saveName()" (ngModelChange)="saveName.set($event)" (keydown.enter)="save()">
+        @if (nameError(); as message) {
+          <span class="invalid">{{ message }}</span>
+        }
+      </div>
+
+      <app-alert [message]="saveError()" />
+
+      <div class="dialog-actions">
+        <button type="button" (click)="closeSave()" [disabled]="saving()">Cancel</button>
+        <button type="button" class="primary" (click)="save()" [disabled]="saving() || !!nameError()">{{ saving() ? 'Saving' : 'Save' }}</button>
+      </div>
+    </div>
+  </div>
+}

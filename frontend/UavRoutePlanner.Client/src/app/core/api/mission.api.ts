@@ -20,6 +20,10 @@ export class MissionApi {
     return this.http.post<Mission>(this.url, input);
   }
 
+  update(id: number, input: MissionInput) {
+    return this.http.put<Mission>(`${this.url}/${id}`, input);
+  }
+
   delete(id: number) {
     return this.http.delete<void>(`${this.url}/${id}`);
   }

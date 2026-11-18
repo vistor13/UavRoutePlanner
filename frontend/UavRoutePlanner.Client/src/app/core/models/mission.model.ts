@@ -26,6 +26,7 @@ export interface MissionSummary {
   objectsCount: number;
   routesCount: number;
   bestVisitedObjectsCount: number | null;
+  plannedDepartureUtc: string | null;
 }
 
 export interface SurveyObject {
@@ -53,6 +54,7 @@ export interface Mission {
   uav: UavParameters;
   algorithm: AlgorithmSettings;
   objects: SurveyObject[];
+  plannedDepartureUtc: string | null;
 }
 
 export interface SurveyObjectInput {

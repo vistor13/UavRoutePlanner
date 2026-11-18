@@ -26,7 +26,7 @@ const DEFAULT_ZOOM = 12;
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<div #host class="map"></div>`,
   styles: `
-    :host { display: block; }
+    :host { display: block; isolation: isolate; }
     .map { height: 100%; min-height: 420px; border-radius: 8px; border: 1px solid var(--border); }
   `
 })

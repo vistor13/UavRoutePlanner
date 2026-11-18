@@ -1,0 +1,16 @@
+:host { display: block; }
+
+.cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+.stat { display: flex; gap: 12px; padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); min-width: 0; }
+.icon { flex: none; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(47, 111, 228, 0.22); color: #8ec1ff; }
+.info { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.label { font-size: 0.8rem; color: var(--muted); }
+.value { display: inline-flex; align-items: center; gap: 8px; font-size: 1.25rem; font-weight: 600; }
+.value.small { font-size: 1.02rem; }
+.sub { font-size: 0.78rem; color: var(--muted); }
+.sub.split { display: flex; justify-content: space-between; gap: 8px; }
+
+.bar { display: block; height: 6px; margin: 6px 0 2px; border-radius: 3px; background: rgba(255, 255, 255, 0.1); overflow: hidden; }
+.bar .fill { display: block; height: 100%; border-radius: 3px; background: var(--ok); }
+.bar.high .fill { background: var(--warn); }
+.bar.over .fill { background: var(--danger); }

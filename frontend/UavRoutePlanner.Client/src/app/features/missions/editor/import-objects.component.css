@@ -1,0 +1,41 @@
+:host { display: block; }
+
+.block { border: 1px solid var(--border); border-radius: 10px; background: rgba(10, 21, 40, 0.55); }
+
+.toggle {
+  display: flex; width: 100%; align-items: center; gap: 10px;
+  padding: 12px 14px; border: 0; border-radius: 10px; background: transparent; text-align: left; color: var(--text);
+}
+.toggle:hover:not(:disabled) { background: rgba(255, 255, 255, 0.03); border-color: transparent; }
+.title { font-weight: 600; font-size: 0.95rem; flex: 1; }
+.tag {
+  padding: 2px 9px; border-radius: 999px; font-size: 0.75rem; color: var(--muted);
+  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.chevron { flex: none; color: var(--muted); transition: transform 0.15s; }
+.open .chevron { transform: rotate(180deg); }
+
+.body { padding: 2px 14px 14px; }
+
+.drop {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 16px 12px; border: 1px dashed #3a5384; border-radius: 8px; text-align: center; color: var(--muted);
+  transition: border-color 0.12s, background 0.12s;
+}
+.drop.dragging { border-color: var(--accent); background: rgba(41, 182, 246, 0.08); }
+.drop svg { color: #7f97c2; }
+.drop-text { font-size: 0.88rem; color: var(--text); }
+.drop-note { font-size: 0.75rem; }
+.browse { padding: 0; border: 0; background: none; color: var(--accent); font: inherit; text-decoration: underline; }
+.picker { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+.files { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.files li {
+  display: flex; align-items: center; gap: 8px; padding: 7px 8px 7px 10px;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--field); font-size: 0.88rem;
+}
+.files svg { flex: none; color: #7f97c2; }
+.name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.count { flex: none; color: var(--muted); font-size: 0.82rem; }
+.remove { flex: none; width: 24px; height: 24px; padding: 0; line-height: 1; border: 0; border-radius: 6px; background: transparent; color: var(--muted); font-size: 1.2rem; }
+.remove:hover:not(:disabled) { background: rgba(255, 123, 123, 0.14); color: var(--danger); border-color: transparent; }

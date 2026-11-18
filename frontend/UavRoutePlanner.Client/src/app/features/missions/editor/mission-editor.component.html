@@ -1,0 +1,102 @@
+<header class="top">
+  <h1>{{ editing() ? 'Edit mission' : 'New mission' }}</h1>
+  <app-steps [step]="1" />
+</header>
+<app-alert [message]="error()" />
+
+<div class="editor">
+  <section class="card side">
+    <div class="scroll">
+      <div class="field">
+        <label for="mission-name">Mission name</label>
+        <input id="mission-name" name="name" placeholder="e.g. Warehouse perimeter survey" autocomplete="off" [ngModel]="name()" (ngModelChange)="name.set($event)">
+      </div>
+
+      <div class="field">
+        <label for="mission-profile">UAV profile</label>
+        <select id="mission-profile" [ngModel]="profileId()" (ngModelChange)="profileId.set($event)">
+          <option [ngValue]="null" disabled>Select a profile</option>
+          @for (profile of profiles(); track profile.id) {
+            <option [ngValue]="profile.id">{{ profile.name }}</option>
+          }
+        </select>
+        @if (profiles().length === 0 && !loading()) {
+          <p class="note">No profiles yet. <a routerLink="/profiles">Create one</a> first.</p>
+        } @else if (editing()) {
+          <p class="note">Saving refreshes the UAV parameters from the selected profile.</p>
+        }
+      </div>
+
+      <div class="field">
+        <span class="label" id="place-label">Place points on the map</span>
+        <div class="segmented" role="radiogroup" aria-labelledby="place-label">
+          <label class="seg">
+            <input type="radio" name="mode" value="start" [ngModel]="mode()" (ngModelChange)="mode.set($event)">
+            <span>Start</span>
+          </label>
+          <label class="seg" [class.disabled]="finishSameAsStart()">
+            <input type="radio" name="mode" value="finish" [disabled]="finishSameAsStart()" [ngModel]="mode()" (ngModelChange)="mode.set($event)">
+            <span>Finish</span>
+          </label>
+          <label class="seg">
+            <input type="radio" name="mode" value="object" [ngModel]="mode()" (ngModelChange)="mode.set($event)">
+            <span>Objects</span>
+          </label>
+        </div>
+        <label class="check">
+          <input type="checkbox" [ngModel]="finishSameAsStart()" (ngModelChange)="setSameFinish($event)">
+          Finish is the same as start
+        </label>
+        <p class="note">Click on the map to place the selected point.</p>
+      </div>
+
+      <div class="field">
+        <div class="objects-head">
+          <h2>Objects</h2>
+          <span class="count" aria-label="Objects count">{{ objects().length }}</span>
+        </div>
+        @if (objects().length === 0) {
+          <div class="empty">No objects yet. Click the map or import a file.</div>
+        } @else {
+          <ul class="list compact objects">
+            @for (object of objects(); track $index) {
+              <li>
+                <span class="num">{{ $index + 1 }}</span>
+                <input [attr.aria-label]="'Name of object ' + ($index + 1)" [ngModel]="object.name" (ngModelChange)="rename($index, $event)">
+                <button type="button" class="danger" aria-label="Remove object" (click)="removeObject($index)">&times;</button>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <app-import-objects [files]="importedFiles()" (imported)="addImported($event)" (removed)="removeImport($event)" />
+
+      <app-algorithm-settings [(settings)]="algorithm" />
+    </div>
+
+    <footer class="footer">
+      @if (editing() && routesCount() > 0) {
+        <p class="callout" role="note">
+          {{ routesCount() }} saved {{ routesCount() === 1 ? 'route is' : 'routes are' }} deleted if you change the points, objects or the UAV.
+        </p>
+      }
+      @if (hint(); as text) {
+        <p class="why" role="status">{{ text }}</p>
+      }
+      <div class="row">
+        <button class="primary next" type="button" [disabled]="!canSave() || busy() || loading()" (click)="save()">
+          {{ busy() ? 'Saving...' : editing() ? 'Save and continue' : 'Next: flight settings' }}
+          @if (!busy()) {
+            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M4 10h12m-5-5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          }
+        </button>
+        <a class="button" [routerLink]="cancelLink()">Cancel</a>
+      </div>
+    </footer>
+  </section>
+
+  <section class="mapbox">
+    <app-map [markers]="markers()" [autoFit]="fitMap()" (mapClicked)="onMapClick($event)" />
+  </section>
+</div>

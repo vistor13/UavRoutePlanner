@@ -65,11 +65,12 @@ export interface DepartureHour {
   totalTimeS: number | null;
   errorCode: string | null;
   isBest: boolean;
+  route: RouteResult | null;
 }
 
 export interface DepartureRecommendation {
   bestDepartureTimeUtc: string;
   hours: DepartureHour[];
   noWindBaseline: { visitedObjectsCount: number; totalTimeS: number } | null;
-  bestRoute: RouteResult;
+  seed: number;
 }

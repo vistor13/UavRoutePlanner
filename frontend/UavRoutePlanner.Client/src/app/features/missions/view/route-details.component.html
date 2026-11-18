@@ -1,0 +1,48 @@
+@let r = route();
+<section class="card">
+  <header class="head">
+    <h2>Legs <span class="count">({{ r.legs.length }})</span></h2>
+    @if (exportable()) {
+      <app-route-export [route]="r" />
+    }
+  </header>
+
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>From &rarr; To</th><th>Distance</th><th>Track</th>
+          <th>Heading</th><th>Ground speed</th><th>Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (leg of legs(); track leg.order; let i = $index) {
+          <tr>
+            <td>{{ leg.order }}</td>
+            <td class="path">{{ from(i) }} &rarr; {{ to(leg, i) }}</td>
+            <td>{{ distance(leg.distanceM) }}</td>
+            <td>{{ leg.trackDeg.toFixed(0) }}&deg;</td>
+            <td>{{ leg.headingDeg.toFixed(0) }}&deg;</td>
+            <td>{{ leg.groundSpeedMs.toFixed(1) }} m/s</td>
+            <td>{{ duration(leg.timeS) }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (canExpand()) {
+    <button type="button" class="more" (click)="toggle()">
+      {{ expanded() ? 'Show fewer legs' : 'Show all ' + r.legs.length + ' legs' }}
+    </button>
+  }
+
+  @if (r.skippedObjects.length > 0) {
+    <h3>Skipped objects</h3>
+    <ul class="chips">
+      @for (object of r.skippedObjects; track object.number) {
+        <li>{{ object.number }}. {{ object.name }}</li>
+      }
+    </ul>
+  }
+</section>

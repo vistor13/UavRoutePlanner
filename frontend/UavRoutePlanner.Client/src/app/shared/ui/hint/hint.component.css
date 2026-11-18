@@ -1,0 +1,28 @@
+:host { display: inline-flex; vertical-align: middle; }
+
+.icon {
+  width: 16px; height: 16px; padding: 0; margin: 0;
+  border-radius: 50%; border: 1px solid #4b6794; background: transparent;
+  color: #9fb4d6; font: italic 700 10px/1 Georgia, serif;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: help;
+}
+.icon:hover, .icon:focus-visible { border-color: var(--accent); color: var(--accent); outline: none; }
+.icon:focus-visible { box-shadow: 0 0 0 3px rgba(41, 182, 246, 0.25); }
+
+.tip {
+  position: absolute; z-index: 60;
+  top: 24px; left: 0;
+  width: 240px; padding: 10px 12px;
+  background: #0b1930; border: 1px solid #35517f; border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+  color: var(--text); font: 400 12.5px/1.45 Inter, system-ui, sans-serif; text-align: left; white-space: normal;
+  opacity: 0; visibility: hidden; transform: translateY(-2px);
+  transition: opacity 0.12s, transform 0.12s, visibility 0.12s;
+  pointer-events: none;
+}
+
+:host-context(.field.end) .tip { left: auto; right: 0; }
+:host-context(.field.up) .tip { top: auto; bottom: 24px; }
+
+:host(:hover) .tip, :host(:focus-within) .tip { opacity: 1; visibility: visible; transform: none; }

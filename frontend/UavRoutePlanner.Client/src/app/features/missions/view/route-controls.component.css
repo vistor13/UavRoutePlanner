@@ -1,0 +1,38 @@
+:host { display: block; }
+
+.head { position: relative; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.head h2 { margin: 0; font-size: 1rem; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field.spaced { margin-top: 14px; }
+.field label { margin: 0; font-size: 0.85rem; color: var(--text); }
+.field input { margin: 0; height: 38px; padding: 0 12px; }
+.field input[type='number'] { appearance: textfield; -moz-appearance: textfield; }
+.field input::-webkit-outer-spin-button, .field input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.field.invalid input { border-color: var(--danger); }
+.note { margin: 0; font-size: 0.78rem; color: var(--muted); }
+.field.invalid .note { color: var(--danger); }
+
+.manual { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+.muted-line { margin: 12px 0; font-size: 0.88rem; color: var(--muted); }
+
+.outline { height: 38px; padding: 0 14px; border-color: #2f5aa8; color: #8ec1ff; background: transparent; }
+.outline:hover:not(:disabled) { background: rgba(47, 111, 228, 0.12); border-color: var(--accent); }
+
+
+.actions { display: grid; grid-template-columns: 1fr 1.7fr; gap: 10px; }
+.actions button { height: 40px; padding: 0 10px; white-space: nowrap; }
+.used { margin: 12px 0 0; font-size: 0.85rem; color: #8ec1ff; }
+.blocker { margin: 12px 0 0; font-size: 0.85rem; color: var(--warn); }
+
+.advanced { margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; background: rgba(10, 21, 40, 0.55); }
+.advanced-toggle { display: flex; width: 100%; align-items: center; justify-content: space-between; padding: 11px 14px; border: 0; border-radius: 10px; background: transparent; color: var(--text); font-weight: 600; font-size: 0.92rem; }
+.advanced-toggle:hover:not(:disabled) { background: rgba(255, 255, 255, 0.03); border-color: transparent; }
+.advanced-toggle svg { color: var(--muted); transition: transform 0.15s; }
+.advanced.open .advanced-toggle svg { transform: rotate(180deg); }
+.advanced-body { padding: 0 14px 14px; }
+.seed { flex-direction: row; align-items: center; gap: 12px; }
+.seed label { flex: none; }
+.advanced-body .note { margin-top: 8px; }
+
+.best-link { display: inline-block; margin-top: 12px; font-size: 0.88rem; }

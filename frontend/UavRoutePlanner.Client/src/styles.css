@@ -36,7 +36,7 @@ body::before {
     image-set(url('/auth/auth-bg.webp') type('image/webp'), url('/auth/auth-bg.jpg') type('image/jpeg')) center / cover no-repeat;
 }
 
-main { max-width: 1280px; margin: 0 auto; padding: 20px 16px 48px; }
+main { max-width: 1680px; margin: 0 auto; padding: 20px 16px 48px; }
 h1 { font-size: 1.6rem; margin: 8px 0 16px; }
 h2 { font-size: 1.1rem; margin: 0 0 12px; }
 h3 { font-size: 1rem; margin: 12px 0 8px; }
@@ -97,9 +97,10 @@ button.link { border: none; background: none; padding: 0; color: var(--accent); 
 .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
-.editor, .view { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 16px; align-items: start; }
+.editor, .view { display: grid; grid-template-columns: 420px minmax(0, 1fr); gap: 16px; align-items: start; }
 .view { grid-template-columns: minmax(0, 1fr) 360px; }
-.view .mapbox, .editor .mapbox { height: 620px; }
+.view .mapbox { height: 620px; }
+.editor .mapbox, .editor .side { height: max(620px, calc(100vh - 150px)); }
 .view .mapbox app-map, .editor .mapbox app-map { height: 100%; }
 .view .side { grid-column: 2; grid-row: 1; }
 .view .mapbox { grid-column: 1; grid-row: 1; }

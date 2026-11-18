@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { API_URL } from '../api-config';
 import {
-  DepartureRecommendation, ExportFormat, RouteComparison, RouteRequest, RouteResult
+  DepartureRecommendation, ExportFormat, Mission, RouteComparison, RouteRequest, RouteResult
 } from '../models';
 
 @Injectable({ providedIn: 'root' })
@@ -25,8 +25,12 @@ export class RouteApi {
     return this.http.post<RouteComparison>(`${this.url(missionId)}/compare`, request);
   }
 
-  findBestDeparture(missionId: number, hours: number | null, seed: number | null) {
-    return this.http.post<DepartureRecommendation>(`${this.url(missionId)}/best-departure`, { hours, seed });
+  findBestDeparture(missionId: number, fromUtc: string, toUtc: string, seed: number | null) {
+    return this.http.post<DepartureRecommendation>(`${this.url(missionId)}/best-departure`, { fromUtc, toUtc, seed });
+  }
+
+  saveDeparturePlan(missionId: number, name: string, departureTimeUtc: string, seed: number) {
+    return this.http.post<Mission>(`${this.url(missionId)}/best-departure/save`, { name, departureTimeUtc, seed });
   }
 
   export(missionId: number, resultId: number, format: ExportFormat) {

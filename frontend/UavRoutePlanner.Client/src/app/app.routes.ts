@@ -21,9 +21,18 @@ export const routes: Routes = [
           import('./features/missions/editor/mission-editor.component').then(m => m.MissionEditorComponent)
       },
       {
+        path: 'missions/:id/edit',
+        loadComponent: () =>
+          import('./features/missions/editor/mission-editor.component').then(m => m.MissionEditorComponent)
+      },
+      {
         path: 'missions/:id',
         loadComponent: () =>
           import('./features/missions/view/mission-view.component').then(m => m.MissionViewComponent)
+      },
+      {
+        path: 'best-time',
+        loadComponent: () => import('./features/best-time/best-time.component').then(m => m.BestTimeComponent)
       },
       {
         path: 'profiles',

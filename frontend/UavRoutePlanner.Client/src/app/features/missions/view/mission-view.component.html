@@ -1,0 +1,67 @@
+@if (mission(); as m) {
+  <header class="top">
+    <app-steps [step]="selected() ? 3 : 2" [missionLink]="['/missions', m.id, 'edit']" />
+
+    <p class="summary">
+      Mission '<strong>{{ m.name }}</strong>'
+      @if (m.plannedDepartureUtc; as planned) {
+        <span class="planned" title="This mission was saved for a specific departure time">
+          <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><circle cx="10" cy="10" r="7.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 6v4l2.6 1.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          Departure {{ stamp(planned) }} ({{ zone(planned) }})
+        </span>
+      } &middot; {{ m.uav.airspeedMs }} m/s &middot; {{ m.uav.maxFlightTimeMin }} min
+      &middot; reserve {{ m.uav.reservePercent }}% &middot; altitude {{ m.uav.flightAltitudeM }} m &middot; {{ m.objects.length }} objects
+    </p>
+
+    <div class="actions">
+      <a class="button edit" [routerLink]="['/missions', m.id, 'edit']">
+        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M4 16h3l8.5-8.5a1.6 1.6 0 000-2.3l-.7-.7a1.6 1.6 0 00-2.3 0L4 13v3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        Edit mission
+      </a>
+      <a class="button back" routerLink="/missions">
+        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M16 10H4m5-5l-5 5 5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back to missions
+      </a>
+    </div>
+  </header>
+
+  <app-alert [message]="error()" />
+
+  <div class="flight">
+    <div class="main">
+      <section class="mapbox">
+        <app-map [markers]="markers()" [path]="path()" [autoFit]="true" />
+      </section>
+
+      @if (comparison(); as c) {
+        <app-comparison-panel [comparison]="c" (selected)="select($event)" />
+      }
+
+      @if (selected(); as route) {
+        <app-route-summary [route]="route" />
+
+        <div class="lower">
+          <app-route-details [route]="route" />
+          <app-route-history [routes]="routes()" [selectedId]="route.id" (picked)="select($event)" />
+        </div>
+      } @else {
+        <section class="card placeholder">
+          <h2>No route yet</h2>
+          <p>Choose the wind and departure time on the right, then build a route. The flight task and its history will appear here.</p>
+        </section>
+      }
+    </div>
+
+    <aside class="side">
+      <app-route-controls
+        [missionId]="m.id"
+        [busy]="busy()"
+        [forecast]="forecast()"
+        [forecastError]="forecastError()"
+        (buildRequested)="build($event)"
+        (compareRequested)="compare($event)" />
+    </aside>
+  </div>
+} @else {
+  <app-alert [message]="error()" />
+}

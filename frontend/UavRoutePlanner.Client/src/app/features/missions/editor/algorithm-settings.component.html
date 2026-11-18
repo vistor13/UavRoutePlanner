@@ -1,0 +1,39 @@
+<section class="block" [class.open]="open()">
+  <div class="head">
+    <button type="button" class="toggle" [attr.aria-expanded]="open()" aria-controls="algorithm-body" (click)="toggle()">
+      <span class="titles">
+        <span class="title">Algorithm settings</span>
+        <span class="sub">Ant colony optimization. Defaults work for most missions.</span>
+      </span>
+      <svg class="chevron" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
+  @if (open()) {
+    <div class="body" id="algorithm-body">
+      <div class="grid">
+        @for (field of fields; track field.key; let i = $index) {
+          <div class="field" [class.end]="i % 2 === 1" [class.up]="i >= fields.length - 2" [class.invalid]="errors()[field.key]">
+            <div class="label">
+              <label [for]="'alg-' + field.key">{{ field.label }}</label>
+              <app-hint [text]="field.hint" />
+            </div>
+            <input
+              type="number"
+              [id]="'alg-' + field.key"
+              [step]="field.step"
+              [min]="field.min"
+              [max]="field.max"
+              [attr.aria-invalid]="errors()[field.key] ? 'true' : null"
+              [ngModel]="settings()[field.key]"
+              (ngModelChange)="patch(field.key, $event)">
+            <span class="note">{{ errors()[field.key] ?? ('Default ' + defaults[field.key]) }}</span>
+          </div>
+        }
+      </div>
+      <div class="foot">
+        <button type="button" class="reset" [disabled]="isDefault()" (click)="reset()">Reset to defaults</button>
+      </div>
+    </div>
+  }
+</section>

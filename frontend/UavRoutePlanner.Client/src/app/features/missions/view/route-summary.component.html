@@ -1,0 +1,55 @@
+@let r = route();
+<div class="cards">
+  <article class="stat">
+    <span class="icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </span>
+    <div class="info">
+      <span class="label">Objects visited</span>
+      <span class="value">
+        {{ r.visitedObjectsCount }} of {{ r.totalObjectsCount }}
+        @if (complete()) {
+          <svg class="ok" viewBox="0 0 20 20" width="18" height="18" aria-label="All objects visited"><circle cx="10" cy="10" r="9" fill="#2f9e5f"/><path d="M5.8 10.4l2.8 2.8 5.6-5.8" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        }
+      </span>
+      <span class="sub">{{ objectsPercent() }}%</span>
+    </div>
+  </article>
+
+  <article class="stat">
+    <span class="icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7v5l3.2 2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </span>
+    <div class="info">
+      <span class="label">Flight time</span>
+      <span class="value">{{ timeMinutes() }} min</span>
+      <span class="bar" [class.high]="budgetLevel() === 'high'" [class.over]="budgetLevel() === 'over'"><span class="fill" [style.width.%]="budgetPercent() > 100 ? 100 : budgetPercent()"></span></span>
+      <span class="sub split"><span>{{ budgetPercent() }}% of budget</span><span>Limit: {{ limitMinutes() }} min</span></span>
+    </div>
+  </article>
+
+  <article class="stat">
+    <span class="icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="22" height="22"><rect x="4" y="5.5" width="16" height="14.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </span>
+    <div class="info">
+      <span class="label">Departure</span>
+      <span class="value small">{{ departure() }}</span>
+      <span class="sub">({{ zone() }})</span>
+    </div>
+  </article>
+
+  <article class="stat">
+    <span class="icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path d="M3 9h10.5a2.5 2.5 0 10-2.4-3.2M3 13h15a2.5 2.5 0 11-2.4 3.2M3 17h7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </span>
+    <div class="info">
+      <span class="label">Wind</span>
+      @if (r.windMode === 'NoWind') {
+        <span class="value small">No wind</span>
+      } @else {
+        <span class="value small"><app-wind-arrow [speedMs]="r.windSpeedMs" [directionFromDeg]="r.windDirectionFromDeg" /></span>
+      }
+    </div>
+  </article>
+</div>

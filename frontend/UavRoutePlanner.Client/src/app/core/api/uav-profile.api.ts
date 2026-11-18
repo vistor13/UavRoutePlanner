@@ -23,4 +23,18 @@ export class UavProfileApi {
   delete(id: number) {
     return this.http.delete<void>(`${this.url}/${id}`);
   }
+
+  getPhoto(id: number) {
+    return this.http.get(`${this.url}/${id}/photo`, { responseType: 'blob' });
+  }
+
+  uploadPhoto(id: number, photo: Blob) {
+    return this.http.put<UavProfile>(`${this.url}/${id}/photo`, photo, {
+      headers: { 'Content-Type': photo.type }
+    });
+  }
+
+  deletePhoto(id: number) {
+    return this.http.delete<UavProfile>(`${this.url}/${id}/photo`);
+  }
 }

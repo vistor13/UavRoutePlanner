@@ -1,0 +1,38 @@
+<div class="wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Hour ({{ zone }})</th>
+        <th>Wind</th>
+        <th>Objects</th>
+        <th>Flight time</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of recommendation().hours; track item.timeUtc) {
+        <tr
+          [class.best]="item.isBest"
+          [class.chosen]="item.timeUtc === selected()"
+          [class.off]="!feasible(item)"
+          [attr.tabindex]="feasible(item) ? 0 : null"
+          (click)="pick(item)"
+          (keydown.enter)="pick(item)">
+          <td class="time">{{ hour(item.timeUtc) }}</td>
+          <td><app-wind-arrow [speedMs]="item.windSpeedMs" [directionFromDeg]="item.windDirectionFromDeg" /></td>
+          <td>{{ item.visitedObjectsCount === null ? '—' : item.visitedObjectsCount + '/' + total() }}</td>
+          <td>{{ item.totalTimeS === null ? '—' : duration(item.totalTimeS) }}</td>
+          <td>
+            @if (item.isBest) {
+              <span class="badge best">Best</span>
+            } @else if (item.timeUtc === selected()) {
+              <span class="badge sel">Selected</span>
+            } @else if (!feasible(item)) {
+              <span class="reason">{{ reason(item) }}</span>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

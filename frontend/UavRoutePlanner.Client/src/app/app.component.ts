@@ -13,6 +13,7 @@ import { UserMenuComponent } from './shared/ui/user-menu/user-menu.component';
         <a class="brand" routerLink="/missions"><app-logo [size]="36" /><span>UAV Route Planner</span></a>
         <nav>
           <a routerLink="/missions" routerLinkActive="active">Missions</a>
+          <a routerLink="/best-time" routerLinkActive="active">Best time</a>
           <a routerLink="/profiles" routerLinkActive="active">UAV profiles</a>
         </nav>
         <app-user-menu />
