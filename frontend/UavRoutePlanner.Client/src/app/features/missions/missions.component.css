@@ -586,9 +586,12 @@ tbody tr:hover {
   border-radius: 999px;
   font-size: 0.78rem;
   font-weight: 600;
+  white-space: nowrap;
   color: var(--accent);
   background: rgba(41, 182, 246, 0.14);
   border: 1px solid rgba(41, 182, 246, 0.35);
 }
 
 .planned svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; }
+
+tbody td:first-child { min-width: 380px; }
